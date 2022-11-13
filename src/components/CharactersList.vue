@@ -16,7 +16,7 @@ export default {
 </script>
 
 <template>
-    <div class="row row-cols-5 g-4">
+    <div class="row row-cols-5 g-3 p-3">
         <div class="col" v-for="character in store.characters" :key="character.id">
             <CharacterCard :character="character" />
         </div>

@@ -3,6 +3,7 @@ import AppHeader from './components/AppHeader.vue';
 import AppSearch from './components/AppSearch.vue';
 import AppLoading from './components/AppLoading.vue';
 import CharactersList from './components/CharactersList.vue'
+import AppResult from './components/AppResult.vue';
 
 import axios from "axios";
 import { store } from "./store";
@@ -12,7 +13,8 @@ export default {
     AppHeader,
     AppSearch,
     AppLoading,
-    CharactersList
+    CharactersList,
+    AppResult
   },
   data() {
     return {
@@ -20,16 +22,34 @@ export default {
     }
   },
   created() {
-    this.store.loading = true;
-    axios.get("https://www.breakingbadapi.com/api/characters?limit=5").then((resp) => {
-      this.store.characters = resp.data;
-    })
-      .finally(() => {
-        this.store.loading = false;
-      })
+    this.getCharacters();
   },
   methods: {
+    getCharacters() {
+      this.store.loading = true;
 
+      const paramsUrl = {}
+      if (this.store.searchInput) {
+        paramsUrl.name = this.store.searchInput;
+      }
+      if (this.store.categoryInput) {
+        paramsUrl.category = this.store.categoryInput;
+      }
+
+      axios.get("https://www.breakingbadapi.com/api/characters", {
+        params: paramsUrl
+      })
+        .then((resp) => {
+          this.store.characters = resp.data;
+        })
+        .catch(error => {
+          console.log(error);
+          this.store.characters = [];
+        })
+        .finally(() => {
+          this.store.loading = false;
+        })
+    }
   }
 }
 </script>
@@ -39,9 +59,10 @@ export default {
   <main class="d-flex justify-content-center">
     <div class="my-container">
       <section>
-        <AppSearch />
+        <AppSearch @startSearch="getCharacters" />
       </section>
       <section class="bg-white">
+        <AppResult />
         <AppLoading v-if="store.loading" />
         <CharactersList v-else />
       </section>
