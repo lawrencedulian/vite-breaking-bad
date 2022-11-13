@@ -1,6 +1,7 @@
 <script>
 import AppHeader from './components/AppHeader.vue';
 import AppSearch from './components/AppSearch.vue';
+import AppLoading from './components/AppLoading.vue';
 import CharactersList from './components/CharactersList.vue'
 
 import axios from "axios";
@@ -10,6 +11,7 @@ export default {
   components: {
     AppHeader,
     AppSearch,
+    AppLoading,
     CharactersList
   },
   data() {
@@ -18,19 +20,31 @@ export default {
     }
   },
   created() {
-    axios.get("https://www.breakingbadapi.com/api/characters").then((resp) => {
+    this.store.loading = true;
+    axios.get("https://www.breakingbadapi.com/api/characters?limit=5").then((resp) => {
       this.store.characters = resp.data;
     })
+      .finally(() => {
+        this.store.loading = false;
+      })
+  },
+  methods: {
+
   }
 }
 </script>
 
 <template>
   <AppHeader />
-  <main class="d-flex flex-column justify-content-center">
-    <div class="container">
-      <AppSearch />
-      <CharactersList />
+  <main class="d-flex justify-content-center">
+    <div class="my-container">
+      <section>
+        <AppSearch />
+      </section>
+      <section class="bg-white">
+        <AppLoading v-if="store.loading" />
+        <CharactersList v-else />
+      </section>
     </div>
 
   </main>
